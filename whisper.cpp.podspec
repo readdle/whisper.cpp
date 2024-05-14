@@ -12,7 +12,7 @@ Pod::Spec.new do |spec|
   spec.license = { :type => "MIT", :file => "LICENSE" }
   spec.author = { "Viacheslav Savchenko" => "vs.savchenko@readdle.com" }
 
-  spec.platforms = { :ios => "14.0", :osx => "12.0" }
+  spec.platforms = { :ios => "14.0", :osx => "10.15" }
   spec.source       = { :git => "git@github.com:readdle/whisper.cpp.git", :tag => "#{spec.version}" }
 
   spec.swift_version = '5.0'
