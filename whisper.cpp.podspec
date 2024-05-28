@@ -24,7 +24,6 @@ Pod::Spec.new do |spec|
     "ggml.h",
     "whisper.cpp",
     "whisper.h",
-    "whisper.h",
     "ggml-alloc.c",
     "ggml-alloc.h",
     "ggml-backend.c",
@@ -35,9 +34,7 @@ Pod::Spec.new do |spec|
     "ggml-backend-impl.h",
     "ggml-common.h",
     "ggml-metal.h",
-    "ggml-metal.m",
-    "spm-headers/ggml.h",
-    "spm-headers/whisper.h"
+    "ggml-metal.m"
 
   spec.exclude_files =
     "bindings",
@@ -54,7 +51,8 @@ Pod::Spec.new do |spec|
     "Makefile"
 
   spec.public_header_files =
-    "spm-headers/*.h"
+    "whisper.h",
+    "ggml.h"
 
   spec.resource = "ggml-metal.metal"
 
