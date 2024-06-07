@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "whisper.cpp"
-  spec.version      = "1.1.15-readdle"
+  spec.version      = "1.6.0-readdle"
   spec.summary      = "Readdle fork of whisper.cpp"
   spec.description  = <<-DESC
                     High-performance inference of OpenAI's Whisper automatic speech recognition (ASR) model
