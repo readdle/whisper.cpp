@@ -22,6 +22,10 @@ endif()
 
 set(TARGET common)
 
+if (WHISPER_FFMPEG)
+    set(COMMON_SOURCES_FFMPEG ffmpeg-transcode.cpp)
+endif()
+
 add_library(${TARGET} STATIC
     common.h
     common.cpp
@@ -29,6 +33,7 @@ add_library(${TARGET} STATIC
     common-ggml.cpp
     grammar-parser.h
     grammar-parser.cpp
+    ${COMMON_SOURCES_FFMPEG}
     )
 
 include(DefaultTargetOptions)
@@ -58,8 +63,8 @@ if (WHISPER_SDL2)
 endif()
 
 # add json lib
-add_library(json_cpp INTERFACE json.hpp)
-set_target_properties(json_cpp PROPERTIES FOLDER "libs")
+add_library(json_cpp INTERFACE)
+target_include_directories(json_cpp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # examples
 
