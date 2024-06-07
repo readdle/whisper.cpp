@@ -54,6 +54,9 @@ Pod::Spec.new do |spec|
     "whisper.h",
     "ggml.h"
 
+  spec.preserve_path =
+    "whisper-mel.hpp"
+
   spec.resource = "ggml-metal.metal"
 
   spec.frameworks = "Accelerate", "Metal", "MetalKit"
