@@ -4,9 +4,10 @@
 
 [![Actions Status](https://github.com/ggerganov/whisper.cpp/workflows/CI/badge.svg)](https://github.com/ggerganov/whisper.cpp/actions)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Conan Center](https://shields.io/conan/v/whisper-cpp)](https://conan.io/center/whisper-cpp)
 [![npm](https://img.shields.io/npm/v/whisper.cpp.svg)](https://www.npmjs.com/package/whisper.cpp/)
 
-Stable: [v1.5.5](https://github.com/ggerganov/whisper.cpp/releases/tag/v1.5.5) / [Roadmap | F.A.Q.](https://github.com/ggerganov/whisper.cpp/discussions/126)
+Stable: [v1.6.2](https://github.com/ggerganov/whisper.cpp/releases/tag/v1.6.0) / [Roadmap | F.A.Q.](https://github.com/ggerganov/whisper.cpp/discussions/126)
 
 High-performance inference of [OpenAI's Whisper](https://github.com/openai/whisper) automatic speech recognition (ASR) model:
 
@@ -502,6 +503,16 @@ docker run -it --rm \
   whisper.cpp:main "./main -m /models/ggml-base.bin -f ./samples/jfk.wav"
 ```
 
+## Installing with Conan
+
+You can install pre-built binaries for whisper.cpp or build it from source using [Conan](https://conan.io/). Use the following command:
+
+```
+conan install --requires="whisper-cpp/[*]" --build=missing
+```
+
+For detailed instructions on how to use Conan, please refer to the [Conan documentation](https://docs.conan.io/2/).
+
 ## Limitations
 
 - Inference only
@@ -710,7 +721,7 @@ The [main](examples/main) example provides support for output of karaoke-style m
 currently pronounced word is highlighted. Use the `-wts` argument and run the generated bash script.
 This requires to have `ffmpeg` installed.
 
-Here are a few *"typical"* examples:
+Here are a few _"typical"_ examples:
 
 ```bash
 ./main -m ./models/ggml-base.en.bin -f ./samples/jfk.wav -owts

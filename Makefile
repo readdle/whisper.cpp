@@ -142,59 +142,68 @@ ifeq ($(UNAME_M),$(filter $(UNAME_M),x86_64 i686 amd64))
 		CPUINFO_CMD := sysinfo -cpu
 	endif
 
+	# x86 ISA extensions (chronological order)
 	ifdef CPUINFO_CMD
-		AVX_M := $(shell $(CPUINFO_CMD) | grep -iwE 'AVX|AVX1.0')
-		ifneq (,$(AVX_M))
-			CFLAGS   += -mavx
-			CXXFLAGS += -mavx
-		endif
-
-		AVX2_M := $(shell $(CPUINFO_CMD) | grep -iw 'AVX2')
-		ifneq (,$(AVX2_M))
-			CFLAGS   += -mavx2
-			CXXFLAGS += -mavx2
-		endif
-
-		AVX512F_M := $(shell $(CPUINFO_CMD) | grep -iw 'AVX512F')
-		ifneq (,$(AVX512F_M))
-			CFLAGS   += -mavx512f -mavx512cd -mavx512vl -mavx512dq -mavx512bw
-			CXXFLAGS += -mavx512f -mavx512cd -mavx512vl -mavx512dq -mavx512bw
-		endif
-
-		AVX512VNNI_M := $(shell $(CPUINFO_CMD) | grep -iwE 'AVX512_VNNI|AVX512VNNI')
-		ifneq (,$(AVX512VNNI_M))
-			CFLAGS   += -mavx512vnni
-			CXXFLAGS += -mavx512vnni
-		endif
-
-		AVX512VBMI_M := $(shell $(CPUINFO_CMD) | grep -iw 'AVX512VBMI')
-		ifneq (,$(AVX512VBMI_M))
-			CFLAGS   += -mavx512vbmi
-			CXXFLAGS += -mavx512vbmi
-		endif
-
-		FMA_M := $(shell $(CPUINFO_CMD) | grep -iw 'FMA')
-		ifneq (,$(FMA_M))
-			CFLAGS   += -mfma
-			CXXFLAGS += -mfma
-		endif
-
-		F16C_M := $(shell $(CPUINFO_CMD) | grep -iw 'F16C')
-		ifneq (,$(F16C_M))
-			CFLAGS   += -mf16c
-			CXXFLAGS += -mf16c
-		endif
-
 		SSE3_M := $(shell $(CPUINFO_CMD) | grep -iwE 'PNI|SSE3')
+		SSSE3_M := $(shell $(CPUINFO_CMD) | grep -iw 'SSSE3')
+		AVX_M := $(shell $(CPUINFO_CMD) | grep -iwE 'AVX|AVX1.0')
+		F16C_M := $(shell $(CPUINFO_CMD) | grep -iw 'F16C')
+		FMA_M := $(shell $(CPUINFO_CMD) | grep -iw 'FMA')
+		AVX2_M := $(shell $(CPUINFO_CMD) | grep -iw 'AVX2')
+		AVX512F_M := $(shell $(CPUINFO_CMD) | grep -iw 'AVX512F')
+		AVX512VBMI_M := $(shell $(CPUINFO_CMD) | grep -iw 'AVX512VBMI')
+		AVX512VNNI_M := $(shell $(CPUINFO_CMD) | grep -iwE 'AVX512_VNNI|AVX512VNNI')
+
+		# AVX-512 has many subsets, so let's make it easy to disable them all
+		ifneq ($(filter-out 0,$(WHISPER_NO_AVX512)),)
+			AVX512F_M :=
+			AVX512VBMI_M :=
+			AVX512VNNI_M :=
+		endif
+
 		ifneq (,$(SSE3_M))
 			CFLAGS   += -msse3
 			CXXFLAGS += -msse3
 		endif
 
-		SSSE3_M := $(shell $(CPUINFO_CMD) | grep -iw 'SSSE3')
 		ifneq (,$(SSSE3_M))
 			CFLAGS   += -mssse3
 			CXXFLAGS += -mssse3
+		endif
+
+		ifneq (,$(AVX_M))
+			CFLAGS   += -mavx
+			CXXFLAGS += -mavx
+		endif
+
+		ifneq (,$(F16C_M))
+			CFLAGS   += -mf16c
+			CXXFLAGS += -mf16c
+		endif
+
+		ifneq (,$(FMA_M))
+			CFLAGS   += -mfma
+			CXXFLAGS += -mfma
+		endif
+
+		ifneq (,$(AVX2_M))
+			CFLAGS   += -mavx2
+			CXXFLAGS += -mavx2
+		endif
+
+		ifneq (,$(AVX512F_M))
+			CFLAGS   += -mavx512f -mavx512cd -mavx512vl -mavx512dq -mavx512bw
+			CXXFLAGS += -mavx512f -mavx512cd -mavx512vl -mavx512dq -mavx512bw
+		endif
+
+		ifneq (,$(AVX512VBMI_M))
+			CFLAGS   += -mavx512vbmi
+			CXXFLAGS += -mavx512vbmi
+		endif
+
+		ifneq (,$(AVX512VNNI_M))
+			CFLAGS   += -mavx512vnni
+			CXXFLAGS += -mavx512vnni
 		endif
 	endif
 endif
@@ -277,8 +286,8 @@ ifdef WHISPER_CUDA
 
 	CFLAGS      += -DGGML_USE_CUDA -I/usr/local/cuda/include -I/opt/cuda/include -I$(CUDA_PATH)/targets/$(UNAME_M)-linux/include
 	CXXFLAGS    += -DGGML_USE_CUDA -I/usr/local/cuda/include -I/opt/cuda/include -I$(CUDA_PATH)/targets/$(UNAME_M)-linux/include
-	LDFLAGS     += -lcuda -lcublas -lculibos -lcudart -lcublasLt -lpthread -ldl -lrt -L/usr/local/cuda/lib64 -L/opt/cuda/lib64 -L$(CUDA_PATH)/targets/$(UNAME_M)-linux/lib -L/usr/lib/wsl/lib
-	WHISPER_OBJ += ggml-cuda.o
+	LDFLAGS     += -lcuda -lcublas -lculibos -lcudart -lcublasLt -lcufft -lpthread -ldl -lrt -L/usr/local/cuda/lib64 -L/opt/cuda/lib64 -L$(CUDA_PATH)/targets/$(UNAME_M)-linux/lib -L/usr/lib/wsl/lib
+	WHISPER_OBJ += ggml-cuda.o whisper-mel-cuda.o
 	WHISPER_OBJ += $(patsubst %.cu,%.o,$(wildcard ggml-cuda/*.cu))
 	NVCC        = nvcc
 	NVCCFLAGS   = --forward-unknown-to-host-compiler -arch=$(CUDA_ARCH_FLAG)
@@ -289,6 +298,9 @@ ggml-cuda/%.o: ggml-cuda/%.cu ggml-cuda/%.cuh ggml.h ggml-common.h ggml-cuda/com
 ggml-cuda.o: ggml-cuda.cu ggml-cuda.h ggml.h ggml-backend.h ggml-backend-impl.h ggml-common.h $(wildcard ggml-cuda/*.cuh)
 	$(NVCC) $(NVCCFLAGS) $(CXXFLAGS) -Wno-pedantic -c $< -o $@
 endif
+
+whisper-mel-cuda.o: whisper-mel-cuda.cu whisper.h ggml.h ggml-backend.h whisper-mel.hpp whisper-mel-cuda.hpp
+	$(NVCC) $(NVCCFLAGS) $(CXXFLAGS) -Wno-pedantic -c $< -o $@
 
 ifdef WHISPER_HIPBLAS
 	ROCM_PATH   ?= /opt/rocm
@@ -395,7 +407,7 @@ ggml-quants.o: ggml-quants.c ggml.h ggml-quants.h
 
 WHISPER_OBJ += ggml.o ggml-alloc.o ggml-backend.o ggml-quants.o
 
-whisper.o: whisper.cpp whisper.h ggml.h ggml-cuda.h
+whisper.o: whisper.cpp whisper.h whisper-mel.hpp ggml.h ggml-cuda.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 ifndef WHISPER_COREML
